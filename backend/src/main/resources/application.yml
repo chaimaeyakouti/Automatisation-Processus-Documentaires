@@ -17,3 +17,8 @@ spring:
 
 server:
   port: 8080
+  
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:cle-de-dev-uniquement-a-changer-0123456789abcdef}
+    expiration-minutes: 30
