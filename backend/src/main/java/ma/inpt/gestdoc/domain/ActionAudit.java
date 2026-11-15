@@ -1,0 +1,6 @@
+package ma.inpt.gestdoc.domain;
+
+public enum ActionAudit {
+    LOGIN, LOGIN_ECHEC, CREATION, MODIFICATION, CONSULTATION,
+    SOUMISSION, VALIDATION, REJET, ARCHIVAGE, EXPORT, ACCES_REFUSE
+}
