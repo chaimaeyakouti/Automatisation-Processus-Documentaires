@@ -19,7 +19,7 @@ export default function DashboardPage() {
               Identifiant : <strong>{user.username}</strong>
             </Typography>
             <Typography>Service : {user.service ?? '—'}</Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <Typography>Rôle :</Typography>
               <Chip color="primary" size="small" label={ROLE_LABELS[user.role] ?? user.role} />
             </Stack>

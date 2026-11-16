@@ -29,6 +29,7 @@ public class DataInitializer implements CommandLineRunner {
         creer("redacteur1", "Benali", "Yasmine", Role.REDACTEUR, "Service A");
         creer("relecteur1", "Alaoui", "Omar", Role.RELECTEUR, "Service A");
         creer("validateur1", "Tazi", "Karim", Role.VALIDATEUR, "Direction");
+        creer("redacteur2", "Idrissi", "Sara", Role.REDACTEUR, "Service B");
     }
 
     private void creer(String username, String nom, String prenom, Role role, String service) {

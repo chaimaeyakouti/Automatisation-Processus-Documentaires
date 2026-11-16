@@ -6,7 +6,9 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ForbiddenPage from './pages/ForbiddenPage'
 import ComingSoon from './pages/ComingSoon'
-
+import DocumentsPage from './pages/DocumentsPage'
+import NouveauDocumentPage from './pages/NouveauDocumentPage'
+import DocumentDetailPage from './pages/DocumentDetailPage'
 export default function App() {
   return (
     <Routes>
@@ -17,12 +19,13 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Navigate to="/tableau-de-bord" replace />} />
           <Route path="tableau-de-bord" element={<DashboardPage />} />
-          <Route path="documents" element={<ComingSoon title="Documents" day={4} />} />
+          <Route path="documents" element={<DocumentsPage />} />
           <Route path="acces-refuse" element={<ForbiddenPage />} />
 
           {/* Pages réservées à certains rôles */}
           <Route element={<ProtectedRoute roles={ACCESS.nouveauDocument} />}>
-            <Route path="documents/nouveau" element={<ComingSoon title="Nouveau document" day={4} />} />
+            <Route path="documents/nouveau" element={<NouveauDocumentPage />} />
+            <Route path="documents/:id" element={<DocumentDetailPage />} />
           </Route>
           <Route element={<ProtectedRoute roles={ACCESS.aTraiter} />}>
             <Route path="a-traiter" element={<ComingSoon title="Documents à traiter" day={6} />} />
