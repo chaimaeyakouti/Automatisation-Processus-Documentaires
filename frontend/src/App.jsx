@@ -1,24 +1,39 @@
-import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import ProtectedRoute from './auth/ProtectedRoute'
+import Layout from './components/Layout'
+import { ACCESS } from './config/access'
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import ForbiddenPage from './pages/ForbiddenPage'
+import ComingSoon from './pages/ComingSoon'
 
-function App() {
-  const [data, setData] = useState("")
-  const [error, setError] = useState("")
-
-  useEffect(() => {
-    fetch('/api/ping')
-      .then((r) => r.json())
-      .then(setData)
-      .catch((e) => setError(e.message))
-  }, [])
-
+export default function App() {
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Gestion documentaire</h1>
-      {data && <p>Backend : {data.status}</p>}
-      {error && <p>Erreur : {error}</p>}
-      {!data && !error && <p>Chargement…</p>}
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Tout ce qui est dessous exige d'être connecté */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route index element={<Navigate to="/tableau-de-bord" replace />} />
+          <Route path="tableau-de-bord" element={<DashboardPage />} />
+          <Route path="documents" element={<ComingSoon title="Documents" day={4} />} />
+          <Route path="acces-refuse" element={<ForbiddenPage />} />
+
+          {/* Pages réservées à certains rôles */}
+          <Route element={<ProtectedRoute roles={ACCESS.nouveauDocument} />}>
+            <Route path="documents/nouveau" element={<ComingSoon title="Nouveau document" day={4} />} />
+          </Route>
+          <Route element={<ProtectedRoute roles={ACCESS.aTraiter} />}>
+            <Route path="a-traiter" element={<ComingSoon title="Documents à traiter" day={6} />} />
+          </Route>
+          <Route element={<ProtectedRoute roles={ACCESS.audit} />}>
+            <Route path="audit" element={<ComingSoon title="Journal d'audit" day={8} />} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
-
-export default App
