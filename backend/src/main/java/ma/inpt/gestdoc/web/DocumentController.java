@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/documents")
-@PreAuthorize("hasRole('REDACTEUR')")   // pour l'instant, tout ce contrôleur est réservé aux rédacteurs
 public class DocumentController {
 
     private final DocumentService documentService;
@@ -32,6 +31,7 @@ public class DocumentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('REDACTEUR')")
     public ResponseEntity<DocumentDto> creer(@Valid @RequestBody DocumentRequest request,
                                              Authentication authentication) {
         DocumentDto cree = documentService.creer(authentication.getName(), request);
@@ -39,16 +39,19 @@ public class DocumentController {
     }
 
     @GetMapping("/mes-documents")
+    @PreAuthorize("hasRole('REDACTEUR')")
     public List<DocumentResume> mesDocuments(Authentication authentication) {
         return documentService.mesDocuments(authentication.getName());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('REDACTEUR','RELECTEUR','VALIDATEUR')")
     public DocumentDto obtenir(@PathVariable Long id, Authentication authentication) {
         return documentService.obtenir(authentication.getName(), id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('REDACTEUR')")
     public DocumentDto modifier(@PathVariable Long id,
                                 @Valid @RequestBody DocumentUpdateRequest request,
                                 Authentication authentication) {
@@ -56,6 +59,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('REDACTEUR')")
     public ResponseEntity<Void> supprimer(@PathVariable Long id, Authentication authentication) {
         documentService.supprimer(authentication.getName(), id);
         return ResponseEntity.noContent().build();

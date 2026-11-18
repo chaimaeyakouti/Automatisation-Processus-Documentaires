@@ -14,11 +14,13 @@ public record DocumentResume(
         String objet,
         NiveauConfidentialite niveau,
         StatutDocument statut,
-        Instant dateModification) {
+        Instant dateModification,
+        String auteur) {
 
     public static DocumentResume from(Document d) {
         return new DocumentResume(
                 d.getId(), d.getReference(), d.getType(), d.getObjet(),
-                d.getNiveau(), d.getStatut(), d.getDateModification());
+                d.getNiveau(), d.getStatut(), d.getDateModification(),
+                d.getAuteur().getPrenom() + " " + d.getAuteur().getNom());
     }
 }

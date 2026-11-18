@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -36,6 +37,10 @@ public class GlobalExceptionHandler {
                 .map(f -> f.getField() + " : " + f.getDefaultMessage())
                 .collect(Collectors.joining(" ; "));
         return reponse(HttpStatus.BAD_REQUEST, message);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> accesRefuse(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Accès refusé"));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
