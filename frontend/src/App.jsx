@@ -9,6 +9,7 @@ import ComingSoon from './pages/ComingSoon'
 import DocumentsPage from './pages/DocumentsPage'
 import NouveauDocumentPage from './pages/NouveauDocumentPage'
 import DocumentDetailPage from './pages/DocumentDetailPage'
+import ATraiterPage from './pages/ATraiterPage'
 export default function App() {
   return (
     <Routes>
@@ -25,10 +26,12 @@ export default function App() {
           {/* Pages réservées à certains rôles */}
           <Route element={<ProtectedRoute roles={ACCESS.nouveauDocument} />}>
             <Route path="documents/nouveau" element={<NouveauDocumentPage />} />
+          </Route>
+          <Route element={<ProtectedRoute roles={ACCESS.consulterDocument} />}>
             <Route path="documents/:id" element={<DocumentDetailPage />} />
           </Route>
           <Route element={<ProtectedRoute roles={ACCESS.aTraiter} />}>
-            <Route path="a-traiter" element={<ComingSoon title="Documents à traiter" day={6} />} />
+            <Route path="a-traiter" element={<ATraiterPage />} />
           </Route>
           <Route element={<ProtectedRoute roles={ACCESS.audit} />}>
             <Route path="audit" element={<ComingSoon title="Journal d'audit" day={8} />} />

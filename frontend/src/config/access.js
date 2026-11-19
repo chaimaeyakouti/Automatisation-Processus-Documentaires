@@ -4,6 +4,7 @@
 export const ACCESS = {
   nouveauDocument: ['REDACTEUR'],
   aTraiter: ['RELECTEUR', 'VALIDATEUR'],
+  consulterDocument: ['REDACTEUR', 'RELECTEUR', 'VALIDATEUR'],
   audit: ['ADMIN'],
 }
 

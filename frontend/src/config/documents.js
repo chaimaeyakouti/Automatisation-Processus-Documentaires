@@ -1,3 +1,4 @@
+import { ROLE_LABELS } from './access'
 // Du moins sensible au plus sensible (même ordre que l'énumération du backend)
 export const NIVEAUX = [
   { value: 'DIFFUSION_RESTREINTE', label: 'DIFFUSION_RESTREINTE', color: 'default' },
@@ -38,4 +39,28 @@ export function niveauxAutorises(type) {
 
 export function formatDate(iso) {
   return iso ? new Date(iso).toLocaleString('fr-FR') : '—'
+}
+
+export const ETAPE_STATUTS = {
+  EN_ATTENTE: { label: 'En attente', color: 'default' },
+  APPROUVEE: { label: 'Approuvée', color: 'success' },
+  REJETEE: { label: 'Refusée', color: 'error' },
+}
+
+// Mêmes circuits que domain/Circuits.java (affichage seulement : c'est le serveur qui décide)
+const CIRCUITS = {
+  REQUISITION: ['VALIDATEUR'],
+  RAPPORT: ['RELECTEUR', 'VALIDATEUR'],
+  NOTE_INTERNE: ['VALIDATEUR'],
+  CONFIDENTIEL_DIVERS: ['VALIDATEUR'],
+}
+
+export function circuitLabel(type) {
+  const roles = CIRCUITS[type] ?? []
+  return ['Rédacteur', ...roles.map((r) => ROLE_LABELS[r])].join(' → ')
+}
+
+// Statut dans lequel un document attend la décision de ce rôle
+export function statutAttendu(role) {
+  return { RELECTEUR: 'SOUMIS', VALIDATEUR: 'EN_VALIDATION' }[role] ?? null
 }
