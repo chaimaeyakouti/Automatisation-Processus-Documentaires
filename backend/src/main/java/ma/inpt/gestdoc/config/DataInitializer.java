@@ -26,15 +26,17 @@ public class DataInitializer implements CommandLineRunner {
         assurer("admin", "Admin", "Système", Role.ADMIN, "Administration",
                 NiveauConfidentialite.DIFFUSION_RESTREINTE);
         assurer("redacteur1", "Benali", "Yasmine", Role.REDACTEUR, "Service A",
-                NiveauConfidentialite.SECRET_DEFENSE);
+                NiveauConfidentialite.TRES_SECRET_DEFENSE);
         assurer("redacteur2", "Chraibi", "Sara", Role.REDACTEUR, "Service B",
                 NiveauConfidentialite.DIFFUSION_RESTREINTE);
         assurer("relecteur1", "Alaoui", "Omar", Role.RELECTEUR, "Service A",
                 NiveauConfidentialite.CONFIDENTIEL_DEFENSE);
         assurer("relecteur2", "Fassi", "Leila", Role.RELECTEUR, "Service B",
-                NiveauConfidentialite.SECRET_DEFENSE);
+                NiveauConfidentialite.TRES_SECRET_DEFENSE);
         assurer("validateur1", "Tazi", "Karim", Role.VALIDATEUR, "Direction",
                 NiveauConfidentialite.TRES_SECRET_DEFENSE);
+        assurer("validateur2", "Idrissi", "Nadia", Role.VALIDATEUR, "Direction",
+                NiveauConfidentialite.SECRET_DEFENSE);
     }
 
     /** Crée le compte s'il n'existe pas ; complète l'habilitation seulement si elle est vide. */
