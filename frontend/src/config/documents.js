@@ -1,10 +1,10 @@
 import { ROLE_LABELS } from './access'
 // Du moins sensible au plus sensible (même ordre que l'énumération du backend)
 export const NIVEAUX = [
-  { value: 'DIFFUSION_RESTREINTE', label: 'DIFFUSION_RESTREINTE', color: 'default' },
-  { value: 'CONFIDENTIEL_DEFENSE', label: 'CONFIDENTIEL_DEFENSE', color: 'info' },
-  { value: 'SECRET_DEFENSE', label: 'SECRET_DEFENSE', color: 'warning' },
-  { value: 'TRES_SECRET_DEFENSE', label: 'TRES_SECRET_DEFENSE', color: 'error' },
+  { value: 'DIFFUSION_RESTREINTE', label: 'diffusion restreinte', color: 'default' },
+  { value: 'CONFIDENTIEL_DEFENSE', label: 'confidentiel défense', color: 'info' },
+  { value: 'SECRET_DEFENSE', label: 'secret défense', color: 'warning' },
+  { value: 'TRES_SECRET_DEFENSE', label: 'très secret défense', color: 'error' },
 ]
 
 export const TYPES = [
