@@ -31,10 +31,11 @@ export function niveauParDefaut(type) {
   return TYPES.find((t) => t.value === type)?.niveauParDefaut ?? 'INTERNE'
 }
 
-// Niveaux proposés pour un type : du niveau par défaut jusqu'à SECRET
-export function niveauxAutorises(type) {
+// Niveaux proposés pour un type : du niveau par défaut jusqu'à l'habilitation de la personne
+export function niveauxAutorises(type, habilitation) {
   const minimum = NIVEAUX.findIndex((n) => n.value === niveauParDefaut(type))
-  return NIVEAUX.slice(minimum)
+  const maximum = NIVEAUX.findIndex((n) => n.value === habilitation)
+  return NIVEAUX.slice(minimum, maximum + 1)
 }
 
 export function formatDate(iso) {

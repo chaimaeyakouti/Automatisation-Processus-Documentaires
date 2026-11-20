@@ -37,4 +37,14 @@ public class Utilisateur {
 
     @Column(nullable = false)
     private boolean actif = true;
+
+        // Niveau maximal de confidentialité auquel la personne a accès (null = aucun accès)
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private NiveauConfidentialite habilitation;
+
+    /** Vrai si l'habilitation couvre ce niveau (l'énumération est ordonnée du moins au plus sensible). */
+    public boolean estHabilitePour(NiveauConfidentialite niveau) {
+        return habilitation != null && habilitation.compareTo(niveau) >= 0;
+    }
 }

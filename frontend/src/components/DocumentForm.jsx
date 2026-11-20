@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Box, Button, MenuItem, Stack, TextField } from '@mui/material'
 import { TYPES, niveauParDefaut, niveauxAutorises } from '../config/documents'
+import { useAuth } from '../auth/useAuth'
 
 const OBJET_MAX = 200
 const CONTENU_MAX = 20000
@@ -14,8 +15,11 @@ export default function DocumentForm({
   onSubmit,
   children,
 }) {
+  const { user } = useAuth()
   const [values, setValues] = useState(initial)
-  const niveaux = niveauxAutorises(values.type)
+  const niveaux = niveauxAutorises(values.type, user.habilitation)
+  // Le type choisi exige un niveau supérieur à l'habilitation de la personne
+  const habilitationInsuffisante = niveaux.length === 0
 
   const handleChange = (field) => (event) => {
     setValues((current) => ({ ...current, [field]: event.target.value }))
@@ -64,11 +68,16 @@ export default function DocumentForm({
         <TextField
           select
           label="Niveau de confidentialité"
-          value={values.niveau}
+          value={habilitationInsuffisante ? '' : values.niveau}
+          error={habilitationInsuffisante}
           onChange={handleChange('niveau')}
           disabled={readOnly}
           fullWidth
-          helperText="Il ne peut pas être inférieur au niveau défini pour ce type de document."
+          helperText={
+            habilitationInsuffisante
+              ? 'Votre habilitation ne vous permet pas de produire ce type de document.'
+              : "Il est compris entre le niveau minimal du type et votre habilitation."
+          }
         >
           {niveaux.map((n) => (
             <MenuItem key={n.value} value={n.value}>
@@ -91,7 +100,7 @@ export default function DocumentForm({
 
         {!readOnly && (
           <Stack direction="row" spacing={2}>
-            <Button type="submit" variant="contained" disabled={submitting || !values.objet.trim()}>
+            <Button type="submit" variant="contained" disabled={submitting || !values.objet.trim() || habilitationInsuffisante}>
               {submitLabel}
             </Button>
             {children}

@@ -78,7 +78,6 @@ public class WorkflowService {
         return DocumentDto.from(doc);
     }
 
-    /** File d'attente de la personne connectée : les documents dont c'est son tour d'agir. */
     @Transactional(readOnly = true)
     public List<DocumentResume> aTraiter(String username) {
         Utilisateur utilisateur = utilisateur(username);
@@ -87,10 +86,10 @@ public class WorkflowService {
             return List.of();
         }
         return documentRepository.findByStatutOrderByDateModificationDesc(statut).stream()
+                .filter(d -> utilisateur.estHabilitePour(d.getNiveau()))
                 .map(DocumentResume::from)
                 .toList();
     }
-
     /** Approuver, rejeter ou demander une modification à l'étape courante. */
     @Transactional
     public DocumentDto traiter(String username, Long id, DecisionRequest request) {
@@ -105,6 +104,12 @@ public class WorkflowService {
         if (etape.getRoleAttendu() != acteur.getRole()) {
             auditService.log(ActionAudit.ACCES_REFUSE, username, id,
                     "Tentative de traitement de " + doc.getReference() + " hors de son rôle");
+            throw new AccessDeniedException("Accès refusé");
+        }
+        if (!acteur.estHabilitePour(doc.getNiveau())) {
+            auditService.log(ActionAudit.ACCES_REFUSE, username, id,
+                    "Habilitation insuffisante pour traiter " + doc.getReference()
+                            + " (niveau " + doc.getNiveau() + ")");
             throw new AccessDeniedException("Accès refusé");
         }
 

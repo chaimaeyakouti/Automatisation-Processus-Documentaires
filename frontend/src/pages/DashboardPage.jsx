@@ -1,6 +1,7 @@
 import { Card, CardContent, Chip, Stack, Typography } from '@mui/material'
 import { useAuth } from '../auth/useAuth'
 import { ROLE_LABELS } from '../config/access'
+import { NIVEAUX } from '../config/documents'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -19,6 +20,7 @@ export default function DashboardPage() {
               Identifiant : <strong>{user.username}</strong>
             </Typography>
             <Typography>Service : {user.service ?? '—'}</Typography>
+            <Typography>Habilitation : {NIVEAUX.find((n) => n.value === user.habilitation)?.label ?? '—'}</Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <Typography>Rôle :</Typography>
               <Chip color="primary" size="small" label={ROLE_LABELS[user.role] ?? user.role} />

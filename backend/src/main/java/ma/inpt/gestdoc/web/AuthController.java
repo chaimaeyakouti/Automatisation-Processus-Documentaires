@@ -58,7 +58,8 @@ public class AuthController {
     @GetMapping("/me")
     public UtilisateurInfo me(Authentication authentication) {
         Utilisateur u = utilisateurRepository.findByUsername(authentication.getName()).orElseThrow();
+        String habilitation = u.getHabilitation() == null ? null : u.getHabilitation().name();
         return new UtilisateurInfo(u.getUsername(), u.getPrenom() + " " + u.getNom(),
-                u.getRole().name(), u.getService());
+                u.getRole().name(), u.getService(), habilitation);
     }
 }

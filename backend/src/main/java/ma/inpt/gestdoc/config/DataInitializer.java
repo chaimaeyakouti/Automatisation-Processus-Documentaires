@@ -1,5 +1,6 @@
 package ma.inpt.gestdoc.config;
 
+import ma.inpt.gestdoc.domain.NiveauConfidentialite;
 import ma.inpt.gestdoc.domain.Role;
 import ma.inpt.gestdoc.domain.Utilisateur;
 import ma.inpt.gestdoc.repository.UtilisateurRepository;
@@ -22,24 +23,36 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (utilisateurRepository.count() > 0) {
-            return;
-        }
-        creer("admin", "Admin", "Système", Role.ADMIN, "Administration");
-        creer("redacteur1", "Benali", "Yasmine", Role.REDACTEUR, "Service A");
-        creer("relecteur1", "Alaoui", "Omar", Role.RELECTEUR, "Service A");
-        creer("validateur1", "Tazi", "Karim", Role.VALIDATEUR, "Direction");
-        creer("redacteur2", "Idrissi", "Sara", Role.REDACTEUR, "Service B");
+        assurer("admin", "Admin", "Système", Role.ADMIN, "Administration",
+                NiveauConfidentialite.DIFFUSION_RESTREINTE);
+        assurer("redacteur1", "Benali", "Yasmine", Role.REDACTEUR, "Service A",
+                NiveauConfidentialite.SECRET_DEFENSE);
+        assurer("redacteur2", "Chraibi", "Sara", Role.REDACTEUR, "Service B",
+                NiveauConfidentialite.DIFFUSION_RESTREINTE);
+        assurer("relecteur1", "Alaoui", "Omar", Role.RELECTEUR, "Service A",
+                NiveauConfidentialite.CONFIDENTIEL_DEFENSE);
+        assurer("relecteur2", "Fassi", "Leila", Role.RELECTEUR, "Service B",
+                NiveauConfidentialite.SECRET_DEFENSE);
+        assurer("validateur1", "Tazi", "Karim", Role.VALIDATEUR, "Direction",
+                NiveauConfidentialite.TRES_SECRET_DEFENSE);
     }
 
-    private void creer(String username, String nom, String prenom, Role role, String service) {
-        Utilisateur u = new Utilisateur();
-        u.setUsername(username);
-        u.setMotDePasse(passwordEncoder.encode(MOT_DE_PASSE_DEMO));
-        u.setNom(nom);
-        u.setPrenom(prenom);
-        u.setRole(role);
-        u.setService(service);
+    /** Crée le compte s'il n'existe pas ; complète l'habilitation seulement si elle est vide. */
+    private void assurer(String username, String nom, String prenom, Role role, String service,
+                         NiveauConfidentialite habilitation) {
+        Utilisateur u = utilisateurRepository.findByUsername(username).orElseGet(() -> {
+            Utilisateur nouveau = new Utilisateur();
+            nouveau.setUsername(username);
+            nouveau.setMotDePasse(passwordEncoder.encode(MOT_DE_PASSE_DEMO));
+            nouveau.setNom(nom);
+            nouveau.setPrenom(prenom);
+            nouveau.setRole(role);
+            nouveau.setService(service);
+            return nouveau;
+        });
+        if (u.getHabilitation() == null) {
+            u.setHabilitation(habilitation);
+        }
         utilisateurRepository.save(u);
     }
 }

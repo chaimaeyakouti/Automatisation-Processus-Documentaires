@@ -52,7 +52,9 @@ public class DocumentService {
         doc.setType(request.type());
         doc.setObjet(request.objet().trim());
         doc.setContenu(request.contenu());
-        doc.setNiveau(determinerNiveau(request.type(), request.niveau()));
+        NiveauConfidentialite niveau = determinerNiveau(request.type(), request.niveau());
+        verifierHabilitationProduction(auteur, niveau);
+        doc.setNiveau(niveau);
         doc.setStatut(StatutDocument.BROUILLON);
         doc.setAuteur(auteur);
         doc.setServiceEmetteur(auteur.getService());
@@ -80,7 +82,8 @@ public class DocumentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Document introuvable"));
         if (!peutConsulter(utilisateur, doc)) {
             auditService.log(ActionAudit.ACCES_REFUSE, username, id,
-                    "Tentative d'accès à " + doc.getReference());
+                    "Tentative d'accès à " + doc.getReference() + " (niveau " + doc.getNiveau()
+                            + ", habilitation " + utilisateur.getHabilitation() + ")");
             throw new AccessDeniedException("Accès refusé");
         }
         auditService.log(ActionAudit.CONSULTATION, username, id,
@@ -98,7 +101,9 @@ public class DocumentService {
         doc.setObjet(request.objet().trim());
         doc.setContenu(request.contenu());
         if (request.niveau() != null) {
-            doc.setNiveau(determinerNiveau(doc.getType(), request.niveau()));
+            NiveauConfidentialite niveau = determinerNiveau(doc.getType(), request.niveau());
+            verifierHabilitationProduction(utilisateur(username), niveau);
+            doc.setNiveau(niveau);
         }
         doc.setStatut(StatutDocument.BROUILLON); // un document rejeté repasse en brouillon
         doc = documentRepository.saveAndFlush(doc);
@@ -125,7 +130,7 @@ public class DocumentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
     }
 
-    /** Charge le document, à condition que l'utilisateur en soit l'auteur. Sinon : refus tracé. */
+        /** Charge le document, à condition que l'utilisateur en soit l'auteur ET habilité pour son niveau. */
     public Document chargerPourAuteur(String username, Long id) {
         Document doc = documentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Document introuvable"));
@@ -134,10 +139,21 @@ public class DocumentService {
                     "Tentative d'accès à " + doc.getReference());
             throw new AccessDeniedException("Accès refusé");
         }
+        if (!doc.getAuteur().estHabilitePour(doc.getNiveau())) {
+            auditService.log(ActionAudit.ACCES_REFUSE, username, id,
+                    "Habilitation insuffisante pour " + doc.getReference() + " (niveau " + doc.getNiveau() + ")");
+            throw new AccessDeniedException("Accès refusé");
+        }
         return doc;
     }
-        /** Qui peut lire un document : son auteur, la personne dont c'est le tour, ou celle qui l'a déjà traité. */
+        /**
+     * Qui peut lire un document. L'habilitation est une condition absolue, vérifiée en premier :
+     * aucune des règles suivantes (auteur, tour de traitement, déjà traité) ne peut la contourner.
+     */
     public boolean peutConsulter(Utilisateur utilisateur, Document doc) {
+        if (!utilisateur.estHabilitePour(doc.getNiveau())) {
+            return false;
+        }
         if (doc.getAuteur().getId().equals(utilisateur.getId())) {
             return true;
         }
@@ -150,6 +166,16 @@ public class DocumentService {
     private void verifierBrouillon(Document doc, String action) {
         if (doc.getStatut() != StatutDocument.BROUILLON) {
             throw new BusinessRuleException("Seul un brouillon peut être " + action);
+        }
+    }
+        /** Un auteur ne peut pas produire un document plus sensible que son habilitation. */
+    private void verifierHabilitationProduction(Utilisateur auteur, NiveauConfidentialite niveau) {
+        if (!auteur.estHabilitePour(niveau)) {
+            auditService.log(ActionAudit.ACCES_REFUSE, auteur.getUsername(), null,
+                    "Production refusée : niveau " + niveau + " supérieur à son habilitation "
+                            + auteur.getHabilitation());
+            throw new BusinessRuleException(
+                    "Votre habilitation ne vous permet pas de produire un document de niveau " + niveau);
         }
     }
 
